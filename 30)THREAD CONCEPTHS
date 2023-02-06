@@ -1,0 +1,124 @@
+i)CREATE:
+ #include <stdio.h> 
+#include <stdlib.h> 
+#include <pthread.h> 
+  
+
+void *runThread(void *arg) 
+{ 
+	int i;
+    	printf("Running Thread \n"); 
+	for(i=1;i<=5;i++) printf("%d\n",i);
+    	return NULL; 
+} 
+   
+int main() 
+{ 
+    	pthread_t tid; 
+    	printf("In main function\n"); 
+    	pthread_create(&tid, NULL, runThread, NULL); 
+    	pthread_join(tid, NULL); 
+    	printf("Thread over\n"); 
+	return 0;
+}
+OUTPUT:
+In main function
+Running Thread
+1
+2
+3
+4
+5
+Thread over
+
+
+2)JOIN:
+#include <iostream>
+#include <unistd.h>   
+#include<ctime>   
+#include <pthread.h>
+using namespace std;
+string s;
+time_t Time = time(0);
+void* func(void*)
+{
+    s = ctime(&Time);
+    sleep(1);   
+    cout << "Child thread Created " << s << endl;
+}
+int main()
+{
+    s = ctime(&Time);
+    pthread_t t1[5];
+    for(int i=0; i<5; i++)
+    {
+        cout << "Thread T[" << i << "] is Created " << s << endl;
+        pthread_create(&t1[i], NULL, &func, NULL); 
+        pthread_join(t1[i], NULL); 
+}
+exit(EXIT_SUCCESS); 
+return 0;
+}
+
+
+3)EQUAL THREAD:
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pthread.h>
+pthread_t tmp_thread;
+void* func_one(void* ptr)
+{
+	if (pthread_equal(tmp_thread, pthread_self())) {
+		printf("equal\n");
+	} else {
+		printf("not equal\n");
+	}
+}
+int main()
+{
+	pthread_t thread_one;
+	tmp_thread = thread_one;
+	pthread_create(&thread_one, NULL, func_one, NULL);
+	pthread_join(thread_one, NULL);
+}
+
+4)EXIT:
+#include<stdio.h>
+#include<string.h>
+#include<pthread.h>
+#include<stdlib.h>
+#include<unistd.h>
+pthread_t tid[2];
+void* doSomeThing(void *arg)
+{
+    unsigned long i = 0;
+    pthread_t id = pthread_self();
+    if(pthread_equal(id,tid[0]))
+    {
+        printf("\n First thread processing\n");
+    }
+    else
+    {
+        printf("\n Second thread processing\n");
+    }
+    for(i=0; i<(0xFFFFFFFF);i++);
+    return NULL;
+}
+int main(void)
+{
+    int i = 0;
+    int err;
+    while(i < 2)
+    {
+        err = pthread_create(&(tid[i]), NULL, &doSomeThing, NULL);
+        if (err != 0)
+            printf("\ncan't create thread :[%s]", strerror(err));
+        else
+            printf("\n Thread created successfully\n");
+        i++;
+    }
+    sleep(5);
+    return 0;
+}
